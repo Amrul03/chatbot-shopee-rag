@@ -62,7 +62,7 @@ Uji retrieval tanpa AI: `npm run test:rag` atau `node scripts/test-rag.js "drone
 1. Push folder ini ke repository GitHub (`.env`, `node_modules`, sesi WA sudah di-`.gitignore`).
 2. https://vercel.com → **Add New Project** → import repo.
 3. Sebelum Deploy, buka **Environment Variables** dan isi `GROQ_API_KEY` (opsional `GROQ_MODEL`, `GROQ_MAX_TOKENS`, `RAG_TOP_K`).
-4. **Deploy**. `vercel.json` sudah mengatur folder `public/` sebagai website dan menyertakan `data/` ke fungsi API.
+4. **Deploy** (Framework Preset: `Other`, Build/Output Directory dikosongkan). Vercel otomatis menyajikan folder `public/` dan menjalankan `api/` sebagai serverless function; file di `data/` ikut ter-bundle otomatis.
 
 Jika lupa mengisi `GROQ_API_KEY`, chatbot tetap berjalan dalam mode katalog (label "Katalog (offline)"). Tambahkan variabelnya lalu **Redeploy**.
 
