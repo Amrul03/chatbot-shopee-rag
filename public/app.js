@@ -5,15 +5,6 @@ const $ = id => document.getElementById(id);
 const state = { products: [], categories: [], store: {}, category: "Semua", query: "", sort: "default" };
 const chat = { history: [], busy: false };
 
-const ICONS = {
-  Drone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg>',
-  Kamera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg>',
-  Gimbal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="10" y="13" width="4" height="9" rx="1.5"/><path d="M12 13V9M7 9h10M7 9V4h10v5"/></svg>',
-  Mikrofon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
-  Aksesoris: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>',
-  "Robot Vacuum": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="9" r="2"/><path d="M7 16h10"/></svg>'
-};
-
 const rupiah = n => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 const escapeHTML = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const waLink = text => {
@@ -44,7 +35,6 @@ async function loadCatalog() {
 function renderStore() {
   const s = state.store, p = state.products;
   $("storeName").textContent = s.name || "Toko";
-  if (s.tagline) $("storeTagline").textContent = s.tagline;
   if (s.disclaimer) $("disclaimer").textContent = s.disclaimer;
   ["shopLinkNav", "shopLinkFooter"].forEach(id => ($(id).href = s.shopUrl || "#"));
   $("waHero").href = waLink(`Halo ${s.name}, saya mau tanya-tanya produk DJI. Ada rekomendasi?`);
@@ -87,25 +77,22 @@ function renderGrid() {
   }
   $("productGrid").innerHTML = list.map(p => {
     const waText = `Halo ${state.store.name}, saya tertarik dengan ${shortName(p.nama)} (${rupiah(p.harga)}). Boleh minta info lebih lanjut?`;
+    const desc = p.deskripsi && p.deskripsi !== p.nama ? p.deskripsi.replace(/^.*? - /, "").split(/\s*\|\s*/).join(" · ") : p.keunggulan.join(" · ");
     return `
     <article class="card">
-      <div class="card-visual">
-        ${ICONS[p.kategori] || ICONS.Aksesoris}
-        ${p.diskon ? `<span class="badge-sale">-${p.diskon}%</span>` : ""}
-        <span class="badge-cat">${escapeHTML(p.kategori)}</span>
+      <div class="card-top">
+        <span>${escapeHTML(p.kategori)}</span>
+        ${p.diskon ? `<span class="sale">−${p.diskon}%</span>` : ""}
       </div>
-      <div class="card-body">
-        <h3 class="card-title">${escapeHTML(p.nama)}</h3>
-        ${p.deskripsi && p.deskripsi !== p.nama ? `<p class="card-desc">${escapeHTML(p.deskripsi)}</p>` : ""}
-        ${p.keunggulan.length ? `<div class="tags">${p.keunggulan.map(k => `<span class="tag">${escapeHTML(k)}</span>`).join("")}</div>` : ""}
-        <div class="price-row">
-          <span class="price">${rupiah(p.harga)}</span>
-          ${p.rating ? `<span class="rating"><span class="star">★</span> ${p.rating.toFixed(1)}</span>` : ""}
-        </div>
-        <div class="card-actions">
-          <a class="btn btn-ghost btn-sm" href="${escapeHTML(p.link)}" target="_blank" rel="noopener">Lihat di Shopee</a>
-          <a class="btn btn-wa btn-sm" href="${escapeHTML(waLink(waText))}" target="_blank" rel="noopener">Tanya via WA</a>
-        </div>
+      <h3 class="card-title">${escapeHTML(p.nama.replace(/^\[[^\]]*\]\s*/, ""))}</h3>
+      ${desc ? `<p class="card-desc">${escapeHTML(desc)}</p>` : ""}
+      <div class="price-row">
+        <span class="price">${rupiah(p.harga)}</span>
+        ${p.rating ? `<span class="rating">★ ${p.rating.toFixed(1)}</span>` : ""}
+      </div>
+      <div class="card-actions">
+        <a href="${escapeHTML(p.link)}" target="_blank" rel="noopener">Shopee ↗</a>
+        <a href="${escapeHTML(waLink(waText))}" target="_blank" rel="noopener">Tanya via WA</a>
       </div>
     </article>`;
   }).join("");
@@ -122,7 +109,7 @@ function renderWaButtons() {
   };
   $("waCategoryButtons").innerHTML = state.categories.map(c => {
     const text = templates[c] || `Halo, saya mau tanya produk kategori ${c}. Ada apa saja?`;
-    return `<a class="wa-card" href="${escapeHTML(waLink(text))}" target="_blank" rel="noopener">${escapeHTML(c)}<span>Chat →</span></a>`;
+    return `<a class="wa-card" href="${escapeHTML(waLink(text))}" target="_blank" rel="noopener">${escapeHTML(c)}<span>→</span></a>`;
   }).join("");
 }
 
