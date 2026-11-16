@@ -1,0 +1,31 @@
+{
+  "keywords": {
+    "cara pesan": "cara pesan",
+    "cara order": "cara pesan",
+    "cara beli": "cara pesan",
+    "checkout": "cara pesan",
+    "pembayaran": "pembayaran",
+    "bayar": "pembayaran",
+    "cod": "pembayaran",
+    "transfer": "pembayaran",
+    "ongkir": "pengiriman",
+    "pengiriman": "pengiriman",
+    "kirim": "pengiriman",
+    "ekspedisi": "pengiriman",
+    "garansi": "garansi",
+    "link toko": "toko",
+    "link shopee": "toko",
+    "alamat toko": "toko",
+    "kontak": "kontak",
+    "nomor wa": "kontak",
+    "admin": "kontak"
+  },
+  "responses": {
+    "cara pesan": "Cara pesan gampang kok 🛒\n\n1. Pilih produk yang kamu mau (boleh tanya ke saya dulu untuk rekomendasi).\n2. Klik *Lihat di Shopee* pada produk tersebut, atau buka lapak kami: {shopUrl}\n3. Pilih varian, masukkan keranjang, lalu checkout seperti biasa di Shopee.",
+    "pembayaran": "Pembayaran dilakukan lewat *checkout Shopee*, jadi semua metode yang tersedia di Shopee (ShopeePay, transfer bank/VA, kartu, COD jika tersedia untuk alamatmu, dll.) bisa dipakai. 💳\n\nLapak kami: {shopUrl}",
+    "pengiriman": "Pengiriman diproses melalui Shopee 🚚. Pilihan kurir, estimasi tiba, dan ongkir akan muncul otomatis saat checkout sesuai alamatmu.\n\nLapak kami: {shopUrl}",
+    "garansi": "Info garansi berbeda untuk tiap produk dan tercantum di halaman produk Shopee masing-masing 🛡️. Sebutkan nama produknya, nanti saya bantu kirimkan link produknya ya.",
+    "toko": "Ini link lapak Shopee kami 🛍️\n{shopUrl}",
+    "kontak": "Kamu bisa hubungi kami lewat:\n💬 *WhatsApp:* wa.me/{waNumber}\n🛍️ *Shopee:* {shopUrl} (fitur Chat Penjual)"
+  }
+}

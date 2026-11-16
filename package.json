@@ -1,0 +1,16 @@
+{
+  "name": "chatbot-rag-shopee",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Katalog lapak Shopee + chatbot RAG (Groq) — website Vercel & gateway WhatsApp",
+  "scripts": {
+    "test:rag": "node scripts/test-rag.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "groq-sdk": "^1.6.0"
+  }
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Gateway WhatsApp</title>
+  <style>
+    :root { --bg:#f3f5f8; --card:#fff; --text:#16202b; --muted:#65717f; --border:#e2e6ec; --green:#1fa855; --amber:#e39b0b; --red:#d93b3b; --blue:#1f6feb; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0e1114; --card:#161a1f; --text:#e9edf2; --muted:#9aa4b1; --border:#2a313a; } }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+    .container { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .panel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:16px; }
+    h1 { margin:0 0 4px; font-size:24px; } h2 { margin:0 0 6px; font-size:17px; }
+    .muted { color:var(--muted); font-size:14px; margin:0; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .status { display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:14px; padding:6px 14px; border-radius:20px; background:var(--bg); }
+    .dot { width:10px; height:10px; border-radius:50%; background:#95a5a6; }
+    .dot.ready { background:var(--green); box-shadow:0 0 8px var(--green); } .dot.waiting { background:var(--amber); box-shadow:0 0 8px var(--amber); }
+    button { padding:10px 18px; border:0; border-radius:8px; color:#fff; background:#2c3e50; font-weight:600; font-size:14px; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    #startBtn { background:var(--green); } #stopBtn { background:var(--red); } #resetBtn { background:#7f8c8d; }
+    .btn-light { background:var(--bg); color:var(--text); border:1px solid var(--border); padding:7px 12px; font-size:13px; }
+    .hidden { display:none !important; }
+    #qrcode { display:flex; justify-content:center; align-items:center; min-height:300px; background:var(--bg); border-radius:10px; margin-top:14px; }
+    #qrcode img { border-radius:8px; background:#fff; padding:8px; }
+    .ready { display:flex; gap:12px; align-items:center; border-left:4px solid var(--green); }
+    .badge { background:var(--green); color:#fff; padding:2px 10px; border-radius:12px; font-family:monospace; font-size:13px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:14px; }
+    .card { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px; }
+    .label { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .value { font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; word-break:break-all; }
+    .bar { height:6px; border-radius:3px; background:var(--border); overflow:hidden; margin:6px 0; }
+    .bar > div { height:100%; width:100%; background:var(--green); transition:width .4s; }
+    .bar > div.warning { background:var(--amber); } .bar > div.danger { background:var(--red); }
+    .sub { font-size:12px; color:var(--muted); }
+    .log { border-top:1px solid var(--border); padding:10px 0; font-size:14px; }
+    .log:first-child { border-top:0; }
+    .log .meta { font-size:12px; color:var(--muted); }
+    .log .q { font-weight:600; } .log .a { white-space:pre-wrap; color:var(--muted); max-height:6.5em; overflow:hidden; }
+    .src { font-size:11px; font-weight:700; padding:1px 7px; border-radius:6px; background:var(--border); text-transform:uppercase; }
+  </style>
+</head>
+<body>
+<main class="container">
+  <section class="panel">
+    <div class="row">
+      <div>
+        <h1>Gateway WhatsApp</h1>
+        <p class="muted" id="storeInfo">Chatbot RAG · Groq AI</p>
+      </div>
+      <span class="status"><span class="dot" id="statusDot"></span><span id="statusText">Memeriksa…</span></span>
+    </div>
+    <div class="row" style="margin-top:16px; justify-content:flex-start">
+      <button id="startBtn">Mulai Bot</button>
+      <button id="stopBtn" class="hidden">Hentikan Bot</button>
+      <button id="resetBtn" title="Hapus sesi WA yang nyangkut / logout">Reset Sesi WA</button>
+      <a href="/" target="_blank" style="margin-left:auto; font-size:14px">Buka website katalog ↗</a>
+    </div>
+  </section>
+
+  <section id="qrSection" class="panel hidden">
+    <h2>Pindai Kode QR</h2>
+    <p class="muted">WhatsApp di HP → <strong>Perangkat tertaut</strong> → <strong>Tautkan perangkat</strong>, lalu pindai kode berikut. Gunakan nomor cadangan, bukan nomor utama.</p>
+    <div id="qrcode"><em class="muted">Menunggu kode QR dari WhatsApp… (pertama kali bisa 30–60 detik)</em></div>
+  </section>
+
+  <section id="readySection" class="panel ready hidden">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1fa855" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div>
+      <h2>Bot Terhubung <span class="badge" id="botNumber">-</span></h2>
+      <p class="muted">Bot membalas chat pribadi otomatis memakai chatbot RAG yang sama dengan website.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="row">
+      <div><h2>Kuota Groq AI</h2><p class="muted">Diambil dari header rate limit respons Groq.</p></div>
+      <button class="btn-light" id="refreshQuotaBtn">↻ Cek Kuota</button>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="label">Sisa Request</div><div class="value" id="reqVal">–</div><div class="bar"><div id="reqBar"></div></div><div class="sub" id="reqReset">Reset: –</div></div>
+      <div class="card"><div class="label">Sisa Token (TPM)</div><div class="value" id="tokVal">–</div><div class="bar"><div id="tokBar" style="background:#6366f1"></div></div><div class="sub">Batas token per menit</div></div>
+      <div class="card"><div class="label">Model</div><div class="value" id="modelVal" style="font-size:15px; font-family:monospace; color:var(--blue)">–</div><div class="sub" id="lastChecked">Pembaruan: –</div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Log Percakapan WhatsApp Terbaru</h2>
+    <p class="muted">Nomor pengirim disamarkan. Label menunjukkan lapisan yang menjawab (template / faq / ai / fallback).</p>
+    <div id="logs" style="margin-top:10px"><em class="muted">Belum ada pesan.</em></div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

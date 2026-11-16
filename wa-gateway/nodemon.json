@@ -1,0 +1,5 @@
+{
+  "watch": ["server.js", "../lib/", "../api/", "../.env"],
+  "ignore": [".wwebjs_auth/**", ".wwebjs_cache/**", "dashboard/**", "node_modules/**", "../public/**", "../data/**"],
+  "ext": "js,json,env"
+}
